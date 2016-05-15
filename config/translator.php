@@ -19,13 +19,19 @@ return [
             app_path('storage'),
         ],
         /**
-         * Files that should be excluded (full path)
+         * Files in which translations should be searched
          */
-        'excluded_files' => [
+        'files' => [
+            '*.php',
+        ],
+        /**
+         * Files that should be ignored (you should use here full file path)
+         */
+        'ignored_files' => [
         ],
         /**
          * Path where generated POT files should be saved
          */
-        'generation_directory' => storage_path('translations'),
+        'output_directory' => storage_path('translations'),
     ],
 ];

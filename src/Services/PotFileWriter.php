@@ -15,7 +15,6 @@ use Illuminate\Filesystem\Filesystem;
  */
 class PotFileWriter
 {
-
     /**
      * Save given translations into given file
      *
