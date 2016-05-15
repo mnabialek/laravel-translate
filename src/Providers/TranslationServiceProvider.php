@@ -34,7 +34,10 @@ class TranslationServiceProvider extends ServiceProvider
             // configuration so we can easily get both of these values from there.
             $locale = $app['config']['app.locale'];
 
-            $trans = new Translator($loader, $locale);
+            $trans = new Translator($loader, $locale,
+                $app['config']['translator.single_file'],
+                $app['config']['translator.single_file_name'],
+                $app['config']['translator.default_group_name']);
 
             $trans->setFallback($app['config']['app.fallback_locale']);
 

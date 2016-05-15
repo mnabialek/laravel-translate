@@ -23,22 +23,22 @@ class TranslationPotExporter extends Command
     /**
      * @var Finder
      */
-    private $finder;
+    protected $finder;
 
     /**
      * @var Filesystem
      */
-    private $files;
+    protected $files;
 
     /**
      * @var PotFileWriter
      */
-    private $potWriter;
+    protected $potWriter;
 
     /**
      * @var Config
      */
-    private $config;
+    protected $config;
 
     /**
      * TranslationPotExporter constructor.
@@ -110,16 +110,21 @@ class TranslationPotExporter extends Command
             if (preg_match_all('/' . $this->getPattern() . '/siU',
                 $file->getContents(), $matches)) {
                 foreach ($matches[4] as $ind => $match) {
-                    if ($match == '') {
-                        // there's no domain set, so we us default one
-                        $match = $matches[3][$ind];
-                        $group = 'messages';
-                    } else {
-                        // we have domain set so we use it
-                        $group = $matches[3][$ind];
-                    }
+                    if (!$this->singleModeOn()) {
+                        if ($match == '') {
+                            // there's no domain set, so we us default one
+                            $match = $matches[3][$ind];
+                            $group = 'messages';
+                        } else {
+                            // we have domain set so we use it
+                            $group = $matches[3][$ind];
+                        }
 
-                    $translations[$group][] = $match;
+                        $translations[$group][] = $match;
+                    } else {
+                        $translations[] = (($match == '') ? $matches[3][$ind]
+                            : $matches[3][$ind] . '.' . $match);
+                    }
                 }
             }
         }
@@ -135,19 +140,29 @@ class TranslationPotExporter extends Command
     protected function saveTranslations(array $groupTranslations)
     {
         $outputDir = $this->config->get('translator.pot.output_directory');
-        
+
         if (!file_exists($outputDir)) {
             mkdir($outputDir, 0777, true);
         }
-        
-        foreach ($groupTranslations as $group => $translations) {
-            $translations = array_unique($translations);
 
-            if ($translations) {
-                $this->potWriter->save($this->files,
-                    $outputDir. DIRECTORY_SEPARATOR . $group . '.pot',
-                    array_fill_keys($translations, ''));
+        if (!$this->singleModeOn()) {
+            foreach ($groupTranslations as $group => $translations) {
+                $translations = array_unique($translations);
+
+                if ($translations) {
+                    $this->potWriter->save($this->files,
+                        $outputDir . DIRECTORY_SEPARATOR . $group . '.pot',
+                        array_fill_keys($translations, ''));
+                    $this->info("File {$group}.pot saved");
+                }
             }
+        } else {
+            $fileName = $this->config->get('translator.single_file_name');
+            $translations = array_unique($groupTranslations);
+            $this->potWriter->save($this->files,
+                $outputDir . DIRECTORY_SEPARATOR . $fileName. '.pot',
+                array_fill_keys($translations, ''));
+            $this->info("File {$fileName}.pot saved");
         }
     }
 
@@ -189,5 +204,15 @@ class TranslationPotExporter extends Command
             'Lang::choice',
             'Lang::transChoice',
         ];
+    }
+
+    /**
+     * Whether single POT file mode is enabled
+     *
+     * @return bool
+     */
+    protected function singleModeOn()
+    {
+        return (bool)$this->config->get('translator.single_file');
     }
 }
