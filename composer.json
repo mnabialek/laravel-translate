@@ -1,0 +1,21 @@
+{
+    "name": "mnabialek/laravel-translate",
+    "description": "Allows storing translations in PO files",
+    "keywords": ["laravel", "poedit", "gettext", "po", "mo","laravel gettext"],    
+    "require": {
+        "laravel/framework": "5.*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mnabialek",
+            "email": "gitre@nabialek.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Mnabialek\\LaravelTranslate\\": "src/"
+        }
+    },    
+    "minimum-stability": "dev"
+}
