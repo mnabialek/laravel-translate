@@ -1,12 +1,13 @@
 <?php
 
-namespace Mnabialek\Translate\Providers;
+namespace Mnabialek\LaravelTranslate\Providers;
 
+use Illuminate\Support\ServiceProvider;
 use Mnabialek\LaravelTranslate\Services\PoFileLoader;
 use Mnabialek\LaravelTranslate\Services\PoFileReader;
 use Mnabialek\LaravelTranslate\Services\Translator;
 
-class TranslationServiceProvider
+class TranslationServiceProvider extends ServiceProvider
 {
     /**
      * Indicates if loading of the provider is deferred.
