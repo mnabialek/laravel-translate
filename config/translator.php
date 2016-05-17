@@ -82,5 +82,17 @@ return [
              */
             'placeholders_text' => 'Available placeholders: ',
         ],
+
+        /**
+         * Array of additional translations that should be added to POT file
+         * each time POT file is generated. It should be array of keys.
+         * Depending on single_file settings they will be either separated
+         * by group (text before first .) or they will be added into single file
+         *
+         * Example content of array:
+         * 'validation.accepted',
+         * 'validation.between.numeric',
+         */
+        'additional_translations' => [],
     ],
 ];

@@ -111,6 +111,7 @@ class TranslationPotExporter extends Command
         $translations = [];
         $usedTranslations = [];
 
+        // first we will find translations and add them
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($this->finder as $file) {
             if (in_array($file->getRealPath(),
@@ -125,7 +126,7 @@ class TranslationPotExporter extends Command
             if (preg_match_all('/' . $this->getPattern() . '/siU',
                 $content, $matches)) {
                 foreach ($matches[4] as $ind => $match) {
-                    $m = new Translation();
+                    $t = new Translation();
 
                     // get this translation locations in current file
                     $locations = [];
@@ -140,14 +141,14 @@ class TranslationPotExporter extends Command
                     // set as plural if plural function was used
                     if (in_array($matches[1][$ind],
                         $this->getPluralFunctions())) {
-                        $m->setPlural(true);
+                        $t->setPlural(true);
                     }
 
                     // find any placeholders and fill them
                     if (isset($matches[5][$ind]) && $matches[5][$ind] != '') {
                         preg_match_all('/\s*[\'"](\w+)[\'"]\s*=\>\s*.*,*/siU',
                             $matches[5][$ind], $placeholders);
-                        $m->setPlaceholders($placeholders[1]);
+                        $t->setPlaceholders($placeholders[1]);
                     }
 
                     // get translation token and group
@@ -155,32 +156,95 @@ class TranslationPotExporter extends Command
                         $this->getTokenAndGroup($match, $matches[3][$ind]);
 
                     // set token
-                    $m->setKey($token);
+                    $t->setKey($token);
+                    // set locations
+                    $t->addFiles($locations);
 
-                    // add only if it was not used before
-                    if (empty($usedTranslations[$group]) ||
-                        !in_array($m->getKey(),
-                            $usedTranslations[$group])
-                    ) {
-                        $m->addFiles($locations);
-                        $translations[$group][] = $m;
-                        $usedTranslations[$group][] = $m->getKey();
-                    } elseif (!empty($translations[$group])) {
-                        /**@var Translation $v */
-                        foreach ($translations[$group] as $v) {
-                            if ($v->getKey() == $m->getKey()) {
-                                // add new occurrences for translation 
-                                $v->addFiles($locations);
-                            }
-                        }
-                    }
+                    $this->addTranslation($t, $group, $locations, $translations,
+                        $usedTranslations);
                 }
             }
         }
 
+        // now we add additional translations
+        $this->addAdditionalTranslations($translations, $usedTranslations);
+
         return ($this->singleModeOn())
             ? $translations[$this->getSingleDummyGroup()]
             : $translations;
+    }
+
+    /**
+     * Add single translation
+     *
+     * @param Translation $trans
+     * @param string $group
+     * @param array $locations
+     * @param array $translations
+     * @param array $usedTranslations
+     */
+    protected function addTranslation(
+        Translation $trans,
+        $group,
+        array $locations,
+        array &$translations,
+        array &$usedTranslations
+    ) {
+        // add only if it was not used before
+        if (empty($usedTranslations[$group]) ||
+            !in_array($trans->getKey(),
+                $usedTranslations[$group])
+        ) {
+            $translations[$group][] = $trans;
+            $usedTranslations[$group][] = $trans->getKey();
+        } elseif (!empty($translations[$group])) {
+            /**@var Translation $v */
+            foreach ($translations[$group] as $v) {
+                if ($v->getKey() == $trans->getKey()) {
+                    // add new occurrences for translation 
+                    $v->addFiles($locations);
+                }
+            }
+        }
+    }
+
+    /**
+     * Add additional translations defined in config file
+     *
+     * @param array $translations
+     * @param array $usedTranslations
+     */
+    protected function addAdditionalTranslations(
+        array &$translations,
+        array &$usedTranslations
+    ) {
+        $additional =
+            $this->config->get('translator.pot.additional_translations', []);
+
+        foreach ($additional as $key) {
+            if ($this->singleModeOn()) {
+                // for single mode we use explicit key
+                $group = $this->getSingleDummyGroup();
+                $token = $key;
+            } else {
+                if (str_contains($key, '.')) {
+                    // we know group and token
+                    list($group, $token) = explode('.', $key, 2);
+                } else {
+                    // we have no group - we use default one
+                    $group =
+                        $this->config->get('translator.default_group_name');
+                    $token = $key;
+                }
+            }
+
+            // create translation (without comment etc)
+            $trans = new Translation();
+            $trans->setKey($token);
+
+            $this->addTranslation($trans, $group, [], $translations,
+                $usedTranslations);
+        }
     }
 
     /**
@@ -361,6 +425,7 @@ class TranslationPotExporter extends Command
             'pot.comments.add',
             'pot.comments.plural_text',
             'pot.comments.placeholders_text',
+            'pot.additional_translations',
         ];
     }
 }
