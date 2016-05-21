@@ -3,6 +3,7 @@
 namespace Mnabialek\LaravelTranslate\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Mnabialek\LaravelTranslate\Console\TranslationExtractor;
 use Mnabialek\LaravelTranslate\Console\TranslationPotExporter;
 use Mnabialek\LaravelTranslate\Services\PoFileLoader;
 use Mnabialek\LaravelTranslate\Services\PoFileReader;
@@ -47,6 +48,7 @@ class TranslationServiceProvider extends ServiceProvider
         // register new artisan commands
         $this->commands([
             TranslationPotExporter::class,
+            TranslationExtractor::class,
         ]);
 
         // register files to be published

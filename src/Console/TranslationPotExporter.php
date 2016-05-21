@@ -2,15 +2,9 @@
 
 namespace Mnabialek\LaravelTranslate\Console;
 
-use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Filesystem\Filesystem;
 use Mnabialek\LaravelTranslate\Models\Translation;
-use Mnabialek\LaravelTranslate\Services\PotFileWriter;
-use Symfony\Component\Finder\Finder;
-use Illuminate\Contracts\Config\Repository as Config;
 
-class TranslationPotExporter extends Command
+class TranslationPotExporter extends Extractor
 {
     /**
      * {@inheritdoc}
@@ -23,54 +17,12 @@ class TranslationPotExporter extends Command
     protected $description = 'Export all used translations into POT format';
 
     /**
-     * @var Finder
-     */
-    protected $finder;
-
-    /**
-     * @var Filesystem
-     */
-    protected $files;
-
-    /**
-     * @var PotFileWriter
-     */
-    protected $potWriter;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * TranslationPotExporter constructor.
-     *
-     * @param Finder $finder
-     * @param Filesystem $files
-     * @param Config $config
-     */
-    public function __construct(
-        Container $app,
-        Finder $finder,
-        Filesystem $files,
-        Config $config
-    ) {
-        parent::__construct();
-        $this->finder = $finder;
-        $this->files = $files;
-        $this->config = $config;
-        $this->setLaravel($app);
-        $this->potWriter = $this->getLaravel()->make(PotFileWriter::class,
-            ['config' => $config->get('translator.pot')]);
-    }
-
-    /**
      * Handle command
      */
     public function handle()
     {
         // verify config file
-        if ($this->hasCorrectConfig()) {
+        if (!$this->hasCorrectConfig()) {
             $this->error('Config is invalid or not exported. You should export it or modify. See readme.md for details');
 
             return;
@@ -83,7 +35,8 @@ class TranslationPotExporter extends Command
         $translations = $this->findTranslations();
 
         // save translations into POT file
-        $this->saveTranslations($translations);
+        $this->saveTranslations($translations,
+            $this->config->get('translator.pot.output_directory'));
     }
 
     /**
@@ -169,9 +122,7 @@ class TranslationPotExporter extends Command
         // now we add additional translations
         $this->addAdditionalTranslations($translations, $usedTranslations);
 
-        return ($this->singleModeOn())
-            ? $translations[$this->getSingleDummyGroup()]
-            : $translations;
+        return $translations;
     }
 
     /**
@@ -224,7 +175,7 @@ class TranslationPotExporter extends Command
         foreach ($additional as $key) {
             if ($this->singleModeOn()) {
                 // for single mode we use explicit key
-                $group = $this->getSingleDummyGroup();
+                $group = $this->getSingleGroupName();
                 $token = $key;
             } else {
                 if (str_contains($key, '.')) {
@@ -245,17 +196,6 @@ class TranslationPotExporter extends Command
             $this->addTranslation($trans, $group, [], $translations,
                 $usedTranslations);
         }
-    }
-
-    /**
-     * Get dummy translation group for single file mode. It helps to simplify
-     * code a bit
-     *
-     * @return string
-     */
-    protected function getSingleDummyGroup()
-    {
-        return 'dummy';
     }
 
     /**
@@ -284,41 +224,10 @@ class TranslationPotExporter extends Command
             } else {
                 $token = $domain . '.' . $match;
             }
-            $group = $this->getSingleDummyGroup();
+            $group = $this->config->get('translator.single_file_name');
         }
 
         return [$token, $group];
-    }
-
-    /**
-     * Save translations into POT files
-     *
-     * @param array $groupTranslations
-     */
-    protected function saveTranslations(array $groupTranslations)
-    {
-        $outputDir = $this->config->get('translator.pot.output_directory');
-
-        if (!file_exists($outputDir)) {
-            mkdir($outputDir, 0777, true);
-        }
-
-        if (!$this->singleModeOn()) {
-            foreach ($groupTranslations as $group => $translations) {
-                if ($translations) {
-                    $this->potWriter->save($this->files,
-                        $outputDir . DIRECTORY_SEPARATOR . $group . '.pot',
-                        $translations);
-                    $this->info("File {$group}.pot saved");
-                }
-            }
-        } else {
-            $fileName = $this->config->get('translator.single_file_name');
-            $this->potWriter->save($this->files,
-                $outputDir . DIRECTORY_SEPARATOR . $fileName . '.pot',
-                $groupTranslations);
-            $this->info("File {$fileName}.pot saved");
-        }
     }
 
     /**
@@ -376,56 +285,6 @@ class TranslationPotExporter extends Command
         return [
             'trans_choice',
             'Lang::transChoice',
-        ];
-    }
-
-    /**
-     * Whether single POT file mode is enabled
-     *
-     * @return bool
-     */
-    protected function singleModeOn()
-    {
-        return (bool)$this->config->get('translator.single_file');
-    }
-
-    /**
-     * Verify if config is published and has correct keys
-     *
-     * @return bool
-     */
-    protected function hasCorrectConfig()
-    {
-        foreach ($this->getRequiredConfigKeys() as $key) {
-            if ($this->config->has('translator.' . $key)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Get required config keys
-     *
-     * @return array
-     */
-    protected function getRequiredConfigKeys()
-    {
-        return [
-            'single_file',
-            'single_file_name',
-            'default_group_name',
-            'pot.paths',
-            'pot.excluded_paths',
-            'pot.files',
-            'pot.ignored_files',
-            'pot.output_directory',
-            'pot.base_path',
-            'pot.comments.add',
-            'pot.comments.plural_text',
-            'pot.comments.placeholders_text',
-            'pot.additional_translations',
         ];
     }
 }

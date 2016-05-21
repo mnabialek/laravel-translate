@@ -110,6 +110,18 @@ class Translation
     }
 
     /**
+     * Set value
+     *
+     * @param $value
+     *
+     * @return string
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
      * Get value
      *
      * @return string

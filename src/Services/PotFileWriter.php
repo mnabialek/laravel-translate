@@ -36,17 +36,21 @@ class PotFileWriter
      * @param Filesystem $files
      * @param string $file
      * @param array $matches
+     * @param string|null $lang
      */
-    public function save(Filesystem $files, $file, $matches)
+    public function save(Filesystem $files, $file, array $matches, $lang = null)
     {
         $output = 'msgid ""' . "\n";
         $output .= 'msgstr ""' . "\n";
         $output .= '"Content-Type: text/plain; charset=UTF-8\n"' . "\n";
         $output .= '"Content-Transfer-Encoding: 8bit\n"' . "\n";
+        if ($lang) {
+            $output .= '"Language: ' . $lang . '\n"' . "\n";
+        }
 
         // save Poedit base path if it's enabled in config
         if (($path = $this->config['base_path']) !== null) {
-            $output .= '"X-Poedit-Basepath: ' . $path . '"' . "\n";
+            $output .= '"X-Poedit-Basepath: ' . $path . '\n"' . "\n";
         }
         $output .= "\n";
 

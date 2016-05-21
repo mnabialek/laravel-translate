@@ -18,6 +18,11 @@ return [
     'default_group_name' => 'messages',
 
     /**
+     * Directory where extracted data will be saved
+     */
+    'extract_directory' => storage_path('translations/extracted'),
+
+    /**
      * Settings for POT generation
      */
     'pot' => [
@@ -44,7 +49,7 @@ return [
         ],
 
         /**
-         * Files that should be ignored (you should use here full file path)
+         * Files that should be ignored (you should use here absolute file path)
          */
         'ignored_files' => [],
 
