@@ -104,7 +104,7 @@ They are quite useless unless you have filled here something custom, so you can 
 Once you finish cleaning your translation files, you can run:
 
 ```
-artisan translator:extract
+php artisan translator:extract
 ```
 
 command. All existing translations will be exported into `PO` files into directory set in  `extract_directory` configuration option. 
@@ -131,7 +131,7 @@ What you want to do is create template files for your `.PO` in which you will ke
 When you run:
 
 ```
-artisan translator:export
+php artisan translator:export
 ```
 
 command, those `.POT` files will be created and you can use them for translating.

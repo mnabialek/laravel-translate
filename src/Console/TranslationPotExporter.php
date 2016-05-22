@@ -23,7 +23,7 @@ class TranslationPotExporter extends Exporter
     {
         // verify config file
         if (!$this->hasCorrectConfig()) {
-            $this->error('Config is invalid or not exported. You should export it or modify. See readme.md for details');
+            $this->error('Config is invalid or not published. You should export it or modify. See readme.md for details');
 
             return;
         }
