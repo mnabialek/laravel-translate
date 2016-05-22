@@ -251,7 +251,7 @@ class TranslationPotExporter extends Exporter
             '[\'"]' . // closing single or double quote
             '\s*,*' . // optional whitespaces followed by optional ,
             '\s*' . // white space characters
-            '(?:\d*?)' . // optional number
+            '(?:[^,]*?)' . // optional function parameter
             ',*\s*' . // optional , and white space characters
             '(?:\[(.*)\])*' .// optional extra parameters as array
             '\)'; // function ) character
