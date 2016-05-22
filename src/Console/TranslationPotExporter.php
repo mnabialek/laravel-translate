@@ -4,7 +4,7 @@ namespace Mnabialek\LaravelTranslate\Console;
 
 use Mnabialek\LaravelTranslate\Models\Translation;
 
-class TranslationPotExporter extends Extractor
+class TranslationPotExporter extends Exporter
 {
     /**
      * {@inheritdoc}
