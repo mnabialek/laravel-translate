@@ -155,6 +155,15 @@ If you do, open this PO file and in `Poedit` you can now synchronize it with POT
 
 If you don't have this PO file yet, just open your POT file and choose creating new translation from existing POT file. Now you can translate and you should save this PO file in valid location inside `resources/assets/lang`
 
+## Translations format
+
+Although this package uses `PO` format for storing translations, it will use the same rules for translations as are used in Laravel:
+
+- place-holders are prefixed by `:`
+- pluralization is made using pipe character for example `{0} There are none|[1,19] There are some|[20,Inf] There are many`
+
+For details please see [Laravel localization documentation](https://laravel.com/docs/5.2/localization#basic-usage)
+
 ## FAQ
 
 #### Something is not working
@@ -165,9 +174,9 @@ This package hasn't been tested in details yet, so in case of any problems, you 
 
 Please create Pull request
  
-#### I'm getting some string to caught as translations and they shouldn't be 
+#### Some strings are caught as translations and they shouldn't be 
  
-This package puts into translations also `->trans('something')` or `->trans_choice('something')` (this is desired behaviour). In case you want to exclude any file from finding translations, you should add this file into `ignored_files`
+This package puts into translations also `->trans('something')` or `->trans_choice('something')` (this is expected behaviour). In case you want to exclude any file from finding translations, you should add this file into `ignored_files`
    
 #### In Poedit I'm getting warning that languages are the same
    
