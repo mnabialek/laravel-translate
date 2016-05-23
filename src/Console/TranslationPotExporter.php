@@ -86,7 +86,7 @@ class TranslationPotExporter extends Exporter
                     $location = mb_substr($file->getRealPath(),
                         mb_strlen(base_path()) + 1);
                     foreach ($lines as $nr => $line) {
-                        if (str_contains($line, $matches[0][$ind])) {
+                        if (str_contains($line, $matches[2][$ind])) {
                             $locations[] = $location . ':' . ($nr + 1);
                         }
                     }
