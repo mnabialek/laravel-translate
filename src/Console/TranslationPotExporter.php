@@ -272,6 +272,7 @@ class TranslationPotExporter extends Exporter
             'Lang::trans',
             'Lang::choice',
             'Lang::transChoice',
+            'transChoice',
         ];
     }
 
@@ -285,6 +286,7 @@ class TranslationPotExporter extends Exporter
         return [
             'trans_choice',
             'Lang::transChoice',
+            'transChoice',
         ];
     }
 }
