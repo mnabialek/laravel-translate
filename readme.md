@@ -144,8 +144,9 @@ This command will find all usages of:
 - Lang::trans,
 - Lang::choice,
 - Lang::transChoice,
+- transChoice
 
-in your files
+in your files. Be aware also occurrences of above preceded by `->` will be found as valid usages.
 
 ## Using PO and POT files
 

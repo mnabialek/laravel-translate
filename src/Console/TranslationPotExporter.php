@@ -95,6 +95,8 @@ class TranslationPotExporter extends Exporter
                     if (in_array($matches[1][$ind],
                         $this->getPluralFunctions())) {
                         $t->setPlural(true);
+                        // for plural add count placeholder
+                        $t->setPlaceholders('count');
                     }
 
                     // find any placeholders and fill them
